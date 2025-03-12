@@ -1,0 +1,54 @@
+# Automated Data Cleaning Pipeline, Source:https://www.kdnuggets.com/creating-automated-data-cleaning-pipelines-using-python-and-pandas
+
+
+def load_dataset(file_path, **kwargs):
+
+  #  Nishanth:**kwargs is essentially optional file parameters 
+
+   
+    import pandas as pd
+    from pathlib import Path
+
+# Nishanth:pathlib is a new and fancy "PATH Manipulation" library,suffix() is a funtion from taht lib
+    
+    file_type = Path(file_path).suffix.lower()
+
+# Nishanth: Takes the file extension and lowers it just in case.
+    
+    # Dictionary of file handlers
+    handlers = {
+        '.csv': pd.read_csv,
+        '.xlsx': pd.read_excel,
+        '.json': pd.read_json,
+        '.parquet': pd.read_parquet
+    }
+    
+    # Get appropriate reader function
+
+    reader = handlers.get(file_type)
+
+/// Nishanth : .get() is a method to avoid using if and else loop and syntax get(variable_or_value_in_this_case_key,'Any Default error message u want to add') (from limited learning)
+    Demo code for this bit
+def keyvalues(key):
+    keypairs = {
+        'key2': 'value2',
+        'key3': 'value3'
+    }
+    keyreader = keypairs.get(key,f'Key {key} not in list')
+    print(keyreader)
+keyvalues('keys123456')
+Key keys123456 not in list
+///
+
+    if reader is None:
+        raise ValueError(f"Unsupported file type: {file_type}")
+  # I might change this bit because i found a more effecient way , not sure if it will break something ill try later  reader = handlers.get(file_type,f"Unsupported file type: {file_type}")
+
+    # Load data with common cleaning parameters
+    df = reader(file_path, **kwargs)
+    
+    # Initial cleaning steps
+    df.columns = df.columns.str.strip().str.lower()  # Standardize column names
+    df = df.replace('', pd.NA)  # Convert empty strings to NA
+    
+    return df
